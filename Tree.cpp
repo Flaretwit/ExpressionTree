@@ -18,7 +18,6 @@ int main() {
   bool done = false;
   stack<Node*> st;
   //Head pointer of the stack, also will become the roto node of the tree.
-  Node* head = new Node();
 
   while(!done) {
     char* token = new char[80];
@@ -43,10 +42,13 @@ int main() {
           st.pop();
           temp->setRight(temp2);
           temp->setLeft(temp3);
+          cout << "temp" << temp->getData() << endl;
           st.push(temp);
     }
   }
+  cout << "Done inputting stuff to the stack" << endl;
   cout << st.size() << endl;
+  cout << "Stack top" << st.top()->getData();
   Node* node = st.top();
   cout << node->getData() << endl;
   cout << node->getLeft()->getData() << endl;
