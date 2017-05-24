@@ -1,38 +1,37 @@
+#include "Node.h";
+#include "BinaryNode.h"
 #include <iostream>
-#include "Node.h"
+using namespace std;
 
+/*
+class -> Node
+This class implements a stack using a LinkedList of Nodes
+This will temporarily store the operands while building the expression tree
+
+*/
 using namespace std;
 //constructs a new Node with data newData
 Node::Node(char* newData) {
   data = newData;
-  left = right = NULL;
+  next = NULL;
 }
 //default constructor
 Node::Node() {
-  left = right = NULL;
+  next = NULL;
 }
 //deletes the Node by pointing its next pointer to NULL
 Node::~Node() {
-  right = NULL;
-  left = NULL;
+  next = NULL;
 }
 //returns the data (character) in the Node
 char* Node::getData() {
   return data;
 }
-//sets the left pointer to a Node.
-void Node::setLeft(Node* newNode) {
-  left = newNode;
+//sets the next pointer to a Node.
+void Node::setNext(Node* newNode) {
+  next = newNode;
 }
-//sets the right pointer to a Node.
-void Node::setRight(Node* newNode) {
-  right = newNode;
-}
-
-Node* Node::getLeft() {
-  return left;
-}
-
-Node* Node::getRight() {
-  return right;
+//returns next pointer
+Node* Node::getNext() {
+  return next;
 }

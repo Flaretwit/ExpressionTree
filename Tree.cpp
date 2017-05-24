@@ -76,3 +76,63 @@ bool isOperator(char c) {
  }
  return false;
 }
+
+char* infix_to_postfix(char input[1000]){
+  while(!done) {
+    char* token = new char[80];
+    int i = 0;
+    for(int i = 0; *input != ' ' && *input != '\0'; i++, input++) {
+      token[i] = *input;
+    }
+    input++;
+    //cout << "Token: (" << token[0] << ")" << endl;
+    //when the expression has been completely read
+    //pops all the remaning operators in the stack into the output
+    if(token[0] == '\0') {
+      while(head != NULL) {
+            cout << pop(head)->getData() << flush;
+      }
+      done = true;
+    }
+    //if token is an digit, immediately prints it
+    else if(isdigit(token[0])) {
+      //cout << "Is a digit." << endl;
+      cout << token[0] << flush;
+    }
+    //if token is a left parentheses, push onto stack
+    else if(token[0] == '(') {
+        Node* node = new Node(token[0]);
+        push(head, node);
+    }
+    //if token is a right parentheses, discrd it, then print and pop stack
+    //until a left parentheses is found.
+    else if(token[0] == ')') {
+        while(head->getData() != '(') {
+          cout << pop(head)->getData() << flush;
+        }
+        //gets rid of left parentheses.
+        pop(head);
+    }
+    //if the stack is empty or contains a left parentheses on top, push operator
+    else if(head == NULL || head->getData() == '(') {
+      //cout << "First time?" << flush;
+      Node* node = new Node(token[0]);
+      push(head, node);
+    }
+    //if token is an operator, pop the stack until the operator on top
+    //has the same or higher precedence. Then pushes the operator
+    else if(isOperator(token[0])) {
+      while(precedence(token[0]) < precedence(head->getData())) {
+        cout << pop(head)->getData() << flush;
+        //if head is now null, breka out of the loop
+        if(head == NULL) {
+          break;
+        }
+      }
+      //cout << "direcly here already" << flush;
+      Node* node = new Node(token[0]);
+      push(head, node);
+    }
+
+}
+}
