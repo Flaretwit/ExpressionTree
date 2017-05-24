@@ -11,9 +11,7 @@ TreeNode::TreeNode(){
   value[0] = '\0';
 }
 
-
 TreeNode::~TreeNode(){
-  
 }
 
 void TreeNode::setLeft(TreeNode* newLeft){
