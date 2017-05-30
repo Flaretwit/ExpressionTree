@@ -114,8 +114,8 @@ void preorder(TreeNode* root)
     if(root)
     {
         cout << root->value << " " << flush;
-        inorder(root->left);
-        inorder(root->right);
+        preorder(root->left);
+        preorder(root->right);
     }
 }
 
@@ -123,8 +123,8 @@ void postorder(TreeNode* root)
 {
     if(root)
     {
-        inorder(root->left);
-        inorder(root->right);
+        postorder(root->left);
+        postorder(root->right);
         cout << root->value << " " << flush;
     }
 }
