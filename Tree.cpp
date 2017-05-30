@@ -10,7 +10,9 @@ using namespace std;
 
 bool isOperator(char c);
 int precedence(char c);
-void inorder(TreeNode* head);
+void inorder(TreeNode* root);
+void preorder(TreeNode* root);
+void postorder(TreeNode* root);
 char* infix_to_postfix(char input[1000]);
 TreeNode* constructTree(char postfix[]);
 TreeNode* newNode(char* value);
@@ -24,20 +26,21 @@ int main() {
 
   char* postarray = new char[80];
   postarray = infix_to_postfix(input);
-  cout << "post array: " << postarray << flush;
+  cout << "Postarray: " << postarray << endl;
   bool done = false;
 
+
   TreeNode* root = constructTree(postarray);
+  cout << "Inorder traveral: " << endl;
   inorder(root);
-  /*
-  cout << "Stack top" << st.top()->getData();
-  Node* node = st.top();
-  cout << node->getData() << endl;
-  cout << node->getLeft()->getData() << endl;
-  cout << node->getRight()->getData() << endl;
-  inorder(st.top());
-  return 0;
-  */
+  cout << endl;
+
+  cout << "Preorder traveral: " << endl;
+  preorder(root);
+  cout << endl;
+
+  cout << "Postorder traveral: " << endl;
+  postorder(root);
 
 }
 
@@ -49,47 +52,45 @@ TreeNode* newNode(char newvalue[])
     return temp;
 }
 
-TreeNode* constructTree(char* postfix)
+TreeNode* constructTree(char postfix[])
 {
   stack<TreeNode *> st;
   TreeNode *t, *t1, *t2;
   bool done = false;
-  while(!done) {
-    char* temp = new char[80];
-    int i = 0;
-    //iterates through the input pointer to get a char* token;
-    for(i; *postfix != '\0' && *postfix != ' '; i++, postfix++) {
-        temp[i] = *postfix;
-    }
-    postfix++;
-    if(*postfix == '\0') {
-      done = true;
-    }
-    //if not an operator, just push it onto the stack
-    else if(!isOperator(temp[0])) {
-          t = new TreeNode();
-          strcpy(t->value, temp);
-          st.push(t);
-    }
-    //is an operator, take top two elements from the stack and attach them
-    else if(isOperator(temp[0])) {
-          t = new TreeNode();
-          strcpy(t->value, temp);
-          // Pop two top nodes
-          t1 = st.top(); // Store top
-          st.pop();      // Remove top
-          t2 = st.top();
-          st.pop();
+  char token[80] = "";
 
-          //  make them children
-          t->right = t1;
-          t->left = t2;
+  int length = strlen(postfix);
+  for(int i = 0; i < length; i++) {
+    if (postfix[i] == ' '){
+        //if not an operator, just push it onto the stack
+        if(!isOperator(token[0])) {
+              t = new TreeNode();
+              strcpy(t->value, token);
+              st.push(t);
+        }
+        //is an operator, take top two elements from the stack and attach them
+        else {
+              t = new TreeNode();
+              strcpy(t->value, token);
+              // Pop two top nodes
+              t1 = st.top(); // Store top
+              st.pop();      // Remove top
+              t2 = st.top();
+              st.pop();
 
-          // Add this subexpression to stack
-          st.push(t);
+              //  make them children
+              t->right = t1;
+              t->left = t2;
+
+              // Add this subexpression to stack
+              st.push(t);
+        }
+        token[0] = '\0';
+    }
+    else {
+      strncat(token, &(postfix[i]), 1);
     }
   }
-
   //Only element remaining will be root of expression tree
   t = st.top();
   st.pop();
@@ -108,6 +109,27 @@ void inorder(TreeNode* root)
     }
 }
 
+void preorder(TreeNode* root)
+{
+    if(root)
+    {
+        cout << root->value << " " << flush;
+        inorder(root->left);
+        inorder(root->right);
+    }
+}
+
+void postorder(TreeNode* root)
+{
+    if(root)
+    {
+        inorder(root->left);
+        inorder(root->right);
+        cout << root->value << " " << flush;
+    }
+}
+
+
 //utility function to check if something is an operator
 bool isOperator(char c) {
  if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^') {
@@ -123,15 +145,13 @@ char* infix_to_postfix(char input[1000]){
   bool done = false;
 
   while(!done) {
-        char* temp = new char[80];
     char* token = new char[80];
-    char* token1 = new char[80];
-
     int i = 0;
-    for(int i = 0; *input != ' ' && *input != '\0'; i++, input++) {
+    for(i; *input != ' ' && *input != '\0'; i++, input++) {
       token[i] = *input;
     }
     input++;
+    token[i] = '\0';
     //when the expression has been completely read
     //pops all the remaning operators in the stack into the output
     if(token[0] == '\0') {
