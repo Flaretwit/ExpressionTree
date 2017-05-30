@@ -3,18 +3,17 @@
 //Also traverses that expression tree in order to obtain
 //prefix, infix, or postfix expressions.
 #include<bits/stdc++.h>
-#include "Node.h"
 #include "TreeNode.h"
 #include <iostream>
-
 using namespace std;
 
-Node* pop(Node*& head);
-void push(Node*& head, Node* node);
+
 bool isOperator(char c);
 int precedence(char c);
-void inorder(Node* head);
+void inorder(TreeNode* head);
 char* infix_to_postfix(char input[1000]);
+TreeNode* constructTree(char postfix[]);
+TreeNode* newNode(char* value);
 
 int main() {
   cout << "Enter infix expression: " << flush;
@@ -28,40 +27,8 @@ int main() {
   cout << "post array: " << postarray << flush;
   bool done = false;
 
-  Node* head = new Node();
-  //Hea
-  while(!done) {
-    char token[80];
-    int i = 0;
-    //iterates through the input pointer to get a char* token;
-    for(i; *input != '\0', *input == ' '; i++, input++) {
-        token[i] = *input;
-    }
-    input++;
-    if(*input == '\0') {
-      done = true;
-    }
-    else if(!isOperator(token[0])) {
-          TreeNode* temp = new TreeNode();
-          temp->setValue(token);
-          Node* ntemp = new Node();
-          ntemp->tn = temp;
-          push(head, ntemp);
-    }
-    else if(isOperator(token[0])) {
-          TreeNode* temp = new TreeNode();
-          temp->setValue(token);
-          TreeNode* temp2 = pop(head)->tn;
-          TreeNode* temp3 = pop(head)->tn;
-          temp->setRight(temp2);
-          temp->setLeft(temp3);
-          cout << "temp" << temp->getValue() << endl;
-          Node* ntemp = new Node();
-          ntemp->tn = temp;
-          push(head, ntemp);
-    }
-  }
-  cout << "Done inputting stuff to the stack" << endl;
+  TreeNode* root = constructTree(postarray);
+  inorder(root);
   /*
   cout << "Stack top" << st.top()->getData();
   Node* node = st.top();
@@ -73,18 +40,74 @@ int main() {
   */
 
 }
-/*
-//iterates through the expression inorder;
-void inorder(Node* head)
+
+TreeNode* newNode(char newvalue[])
 {
-    if(head)
+    TreeNode* temp = new TreeNode();
+    temp->left = temp->right = NULL;
+    strcpy(temp->value, newvalue);
+    return temp;
+}
+
+TreeNode* constructTree(char* postfix)
+{
+  stack<TreeNode *> st;
+  TreeNode *t, *t1, *t2;
+  bool done = false;
+  while(!done) {
+    char* temp = new char[80];
+    int i = 0;
+    //iterates through the input pointer to get a char* token;
+    for(i; *postfix != '\0' && *postfix != ' '; i++, postfix++) {
+        temp[i] = *postfix;
+    }
+    postfix++;
+    if(*postfix == '\0') {
+      done = true;
+    }
+    //if not an operator, just push it onto the stack
+    else if(!isOperator(temp[0])) {
+          t = new TreeNode();
+          strcpy(t->value, temp);
+          st.push(t);
+    }
+    //is an operator, take top two elements from the stack and attach them
+    else if(isOperator(temp[0])) {
+          t = new TreeNode();
+          strcpy(t->value, temp);
+          // Pop two top nodes
+          t1 = st.top(); // Store top
+          st.pop();      // Remove top
+          t2 = st.top();
+          st.pop();
+
+          //  make them children
+          t->right = t1;
+          t->left = t2;
+
+          // Add this subexpression to stack
+          st.push(t);
+    }
+  }
+
+  //Only element remaining will be root of expression tree
+  t = st.top();
+  st.pop();
+
+  return t;
+}
+
+//iterates through the expression inorder;
+void inorder(TreeNode* root)
+{
+    if(root)
     {
-        inorder(head->getLeft());
-        cout << head->getData() << " " << flush;
-        inorder(head->getRight());
+        inorder(root->left);
+        cout << root->value << " " << flush;
+        inorder(root->right);
     }
 }
-*/
+
 //utility function to check if something is an operator
 bool isOperator(char c) {
  if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^') {
@@ -92,68 +115,72 @@ bool isOperator(char c) {
  }
  return false;
 }
-
+//converts an infix expression to postfix;
 char* infix_to_postfix(char input[1000]){
-  Node* head = new Node();
+  stack<char*> st;
+
   char* output = new char[1000];
   bool done = false;
+
   while(!done) {
+        char* temp = new char[80];
     char* token = new char[80];
+    char* token1 = new char[80];
+
     int i = 0;
     for(int i = 0; *input != ' ' && *input != '\0'; i++, input++) {
       token[i] = *input;
     }
     input++;
-    //cout << "Token: (" << token[0] << ")" << endl;
     //when the expression has been completely read
     //pops all the remaning operators in the stack into the output
     if(token[0] == '\0') {
-      while(head != NULL) {
-            strncat(output, head->getData(), strlen(head->getData()));
-            pop(head);
+      while(!st.empty()) {
+            strncat(output, st.top(), strlen(st.top()));
+            strncat(output, " ", 1);
+            st.pop();
       }
       done = true;
     }
-    //if token is an digit, immediately adds it to the output
+    //if token is an digit, ib mmediately adds it to the output
     else if(isdigit(token[0])) {
-      //cout << "Is a digit." << endl;
       strncat(output, token, strlen(token));
+      strncat(output, " ", 1);
     }
+
     //if token is a left parentheses, push onto stack
     else if(token[0] == '(') {
-        Node* node = new Node(token);
-        push(head, node);
+      st.push(token);
     }
     //if token is a right parentheses, discard it, then print and pop stack
     //until a left parentheses is found.
     else if(token[0] == ')') {
-        while(*(head->getData()) != '(') {
-          strncat(output, head->getData(), strlen(head->getData()));
-          pop(head);
+        while(*(st.top()) != '(') {
+          strncat(output, st.top(), strlen(st.top()));
+          strncat(output, " ", 1);
+          st.pop();
         }
         //gets rid of left parentheses.
-        pop(head);
+        st.pop();
     }
     //if the stack is empty or contains a left parentheses on top, push operator
-    else if(head == NULL || *(head->getData()) == '(') {
-      //cout << "First time?" << flush;
-      Node* node = new Node(token);
-      push(head, node);
+    else if(st.empty() || *(st.top()) == '(') {
+      st.push(token);
     }
     //if token is an operator, pop the stack until the operator on top
     //has the same or higher precedence. Then pushes the operator
     else if(isOperator(token[0])) {
-      while(precedence(token[0]) < precedence(*(head->getData()))) {
-        strncat(output, head->getData(), strlen(head->getData()));
-        pop(head);
+      while(precedence(token[0]) < precedence(*(st.top()))) {
+        strncat(output, st.top(), strlen(st.top()));
+        strncat(output, " ", 1);
+        st.pop();
         //if head is now null, breka out of the loop
-        if(head == NULL) {
+        if(st.empty()) {
           break;
         }
       }
       //cout << "direcly here already" << flush;
-      Node* node = new Node(token);
-      push(head, node);
+      st.push(token);
     }
   }
   return output;
@@ -169,16 +196,4 @@ int precedence(char c) {
   if(c == '^') {
     return 3;
   }
-}
-
-//deletes and returns the current inserted node while setting head to
-Node* pop(Node*& head) {
-  Node* current = head;
-  head = head->getNext();
-  return current;
-}
-//adds a node to the top of the stack (implemented as a Linkedlist)
-void push(Node*& head, Node* node) {
-  node->setNext(head);
-  head = node;
 }

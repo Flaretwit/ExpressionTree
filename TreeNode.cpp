@@ -2,10 +2,7 @@
 #include "TreeNode.h"
 #include <string.h>
 
-using namespace std;
-
 TreeNode::TreeNode(){
-  next = NULL;
   left = NULL;
   right = NULL;
   value[0] = '\0';
@@ -28,14 +25,6 @@ TreeNode* TreeNode::getLeft(){
 
 TreeNode* TreeNode::getRight(){
   return right;
-}
-
-TreeNode* TreeNode::getNext(){
-  return next;
-}
-
-void TreeNode::setNext(TreeNode* newNext){
-  next = newNext;
 }
 
 char* TreeNode::getValue(){
